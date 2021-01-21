@@ -127,11 +127,19 @@ def create_master_instance(keyPairDir="~/.ssh/", keyPair="Dino_Bektesevic_lsstsp
     click.echo(f"Instance {instance.id} running.")
 
     ## pull builder scripts from git and run them
-    commands = ["git clone "]
+    breakpoint()
+    commands = ["git clone https://github.com/DinoBektesevic/autobuilder.git"]
     resp = ec2.send_command(
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},
-        InstanceIds=instance_ids,
+        InstanceIds=instance.id,
+    )
+    breakpoint()
+    commands = ["source autobuilder/base.sh"]
+    resp = ec2.send_command(
+        DocumentName="AWS-RunShellScript",
+        Parameters={'commands': commands},
+        InstanceIds=instance.id,
     )
     return resp
 
