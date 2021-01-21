@@ -80,7 +80,7 @@ def create_security_group(secGroupName="RubinAWS0",
     return secGroup.group_id
 
 
-def create_master_instance(keyPairDir="~/.ssh/", keyPair="Dino_Bektesevic_lsstspark",
+def create_instance(keyPairDir="~/.ssh/", keyPair="Dino_Bektesevic_lsstspark",
                            securityGroup="RubinAWS0"):
     ec2 = boto3.resource('ec2')
 
@@ -126,23 +126,44 @@ def create_master_instance(keyPairDir="~/.ssh/", keyPair="Dino_Bektesevic_lsstsp
     instance.wait_until_running()
     click.echo(f"Instance {instance.id} running.")
 
+    return instance
+
+
+def configure_head_node(instance):
+    ec2 = boto3.resource('ec2')
+
     ## pull builder scripts from git and run them
     breakpoint()
-    commands = ["git clone https://github.com/DinoBektesevic/autobuilder.git"]
+    commands = ["sudo yum install git", ]
     resp = ec2.send_command(
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},
         InstanceIds=instance.id,
     )
+
+    berakpoint()
+    commands = ["git clone https://github.com/DinoBektesevic/autobuilder.git", ]
+    resp = ec2.send_command(
+        DocumentName="AWS-RunShellScript",
+        Parameters={'commands': commands},
+        InstanceIds=instance.id,
+    )
+
+    session = boto3.Session()
+    credentials = session.get_credentials()
+    accessKey, secretKey, _ = credentials.get_frozen_credentials()
+
     breakpoint()
-    commands = ["source autobuilder/base.sh"]
+    commands = [f"source autobuilder/base.sh"]
     resp = ec2.send_command(
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},
         InstanceIds=instance.id,
     )
+
     return resp
 
 
 if __name__ == "__main__":
-    create_master_instance()
+    instance = create_instance()
+    configure_head_node(instance)
