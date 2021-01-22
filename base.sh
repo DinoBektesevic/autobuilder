@@ -62,8 +62,8 @@ sudo yum install condor-annex-ec2
 # 5.1) Replace default Condor configuration files with head node ones.
 cd $CWD
 
-sudo cp condor_head_node_config /etc/condor/config.d/local
-sudo cp condor-annex-ec2 /usr/libexec/condor/condor-annex-ec2
+sudo cp autobuilder/condor_head_node_config /etc/condor/config.d/local
+sudo cp autobuilder/condor-annex-ec2 /usr/libexec/condor/condor-annex-ec2
 
 # 5.2) Give Condor programatic access to your cloud account
 echo $SECRET_ACCESS_KEY > ~/.condor/privateKeyFile
