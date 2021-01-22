@@ -18,7 +18,7 @@ echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 ####
 #   2) Install the packages required to perform Stack, Condor and Pegasus installations.
 ####
-sudo yum install -y curl patch git emacs vim wget gnupg awscli
+sudo yum install -y curl patch git emacs vim wget gnupg
 
 
 ####
@@ -50,9 +50,6 @@ sudo wget https://research.cs.wisc.edu/htcondor/yum/repo.d/htcondor-stable-rhel8
 
 sudo yum install condor
 
-sudo systemctl start condor
-sudo systemctl enable condor
-
 #  4.1)  Install condor-annex 0
 #           Unsure how condor-annex installations work on el8
 sudo yum install condor-annex-ec2
@@ -62,14 +59,38 @@ sudo yum install condor-annex-ec2
 #   5) Configure instance as HTCondor head node - probably best to be a separate script.
 #      Good for testing for now.
 ####
-# 5.1) Configure a Condor Pool Password.
-sudo condor_store_cred -c add -f `condor_config_val SEC_PASSWORD_FILE`
+# 5.1) Replace default Condor configuration files with head node ones.
+cd $CWD
 
-sudo chmod 600 /etc/condor/condor_pool_password
-sudo chown root /etc/condor/condor_pool_password
+sudo cp condor_head_node_config /etc/condor/config.d/local
+sudo cp condor-annex-ec2 /usr/libexec/condor/condor-annex-ec2
+
+# 5.2) Give Condor programatic access to your cloud account
+echo $SECRET_ACCESS_KEY > ~/.condor/privateKeyFile
+echo $SECRET_ACCESS_KEY_ID > ~/.condor/publicKeyFile
+sudo chmod 600 ~/.condor/*KeyFile
+
+# 5.3) Start HTCondor processes with the above configs in place.
+#      This allows us to use the condor CLI functionality to continue configuration.
+sudo systemctl enable condor
+sudo systemctl start condor
+
+# 5.3) Configure a Condor Pool Password.
+#      There seems to be a neccessity for condor to see a condor owned pool passwd and
+#      for annex to see a user owned condor pool passwd. We need to duplicate the passwd
+#      file and ensure different owners. This must happen after head node configs have
+#      been detected by condor, since that's where passwd file path is set. We find the
+#      Condor passwd file at the head node configured location, and place the annex passwd
+#      in ~/.condor.
+random_pass=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+pass_file_path=`condor_config_val SEC_PASSWORD_FILE`
+sudo condor_store_cred -c add -f $pass_file_path  -p $random_pass
+
+sudo chmod 600 $pass_file_path
+sudo chown root $pass_file_path
 
 mkdir -p ~/.condor
-sudo cp /etc/condor/condor_pool_password ~/.condor/
+sudo cp $pass_file_path ~/.condor/
 sudo chmod 600 ~/.condor/condor_pool_password
 sudo chown $USER ~/.condor/condor_pool_password
 
@@ -77,17 +98,3 @@ echo "SEC_PASSWORD_FILE=/home/$USER/.condor/condor_pool_password" > ~/.condor/us
 echo "ANNEX_DEFAULT_AWS_REGION=us-east-2" >> ~/.condor/user_config
 
 sudo chown $USER ~/.condor/user_config
-
-# 5.2) Replace default Condor configuration files with head node ones.
-cd $CWD
-
-sudo cp condor_head_node_config /etc/condor/config.d/local
-sudo cp condor-annex-ec2 /usr/libexec/condor/condor-annex-ec2
-
-# 5.3) Give Condor programatic access to your cloud account
-echo $SECRET_ACCESS_KEY > ~/.condor/privateKeyFile
-echo $SECRET_ACCESS_KEY_ID > ~/.condor/publicKeyFile
-sudo chmod 600 ~/.condor/*KeyFile
-
-
-

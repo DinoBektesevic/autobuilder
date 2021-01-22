@@ -95,12 +95,19 @@ def create_instance(keyPairDir="~/.ssh/", keyPair="Dino_Bektesevic_lsstspark",
                          default=True):
             securityGroup = create_security_group(secGroupName=securityGroup)
     else:
-        secGrpFilter = ec2.security_groups.filter(GroupNames=[secGroupName, ])
-        securityGroup = [secGrp for secGrp in secGrpFilter][0]
+        secGrpFilter = ec2.security_groups.filter(GroupNames=[securityGroup, ])
+        securityGroup = [secGrp for secGrp in secGrpFilter][0].group_id
 
     # create a new EC2 instance
     instanceType = "m5.2xlarge"
     instanceAmi = "ami-0155c31ea13d4abd2"
+    # without SSM there is no boto3 way of talking with our instances....
+    userData =  """#cloud-config
+    runcmd:
+     - sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+    - sudo systemctl enable amazon-ssm-agent
+    - sudo systemctl start amazon-ssm-agent
+    """
     instances = ec2.create_instances(
         BlockDeviceMappings=[
             {
@@ -115,6 +122,7 @@ def create_instance(keyPairDir="~/.ssh/", keyPair="Dino_Bektesevic_lsstspark",
         ImageId=instanceAmi,
         InstanceType=instanceType,
         SecurityGroupIds = [securityGroup, ],
+        UserData=userData,
         MaxCount=1,
         MinCount=1,
         KeyName=f"{keyPair}"
@@ -129,24 +137,27 @@ def create_instance(keyPairDir="~/.ssh/", keyPair="Dino_Bektesevic_lsstspark",
     return instance
 
 
-def configure_head_node(instance):
-    ec2 = boto3.resource('ec2')
+def configure_head_node(instance=None, instanceId=None):
+    if instance is not None:
+        instanceId = instance.id
+
+    ssm = boto3.client("ssm", region_name="us-west-2")
 
     ## pull builder scripts from git and run them
     breakpoint()
     commands = ["sudo yum install git", ]
-    resp = ec2.send_command(
+    resp = ssm.send_command(
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},
-        InstanceIds=instance.id,
+        InstanceIds=[instanceId,],
     )
 
     berakpoint()
     commands = ["git clone https://github.com/DinoBektesevic/autobuilder.git", ]
-    resp = ec2.send_command(
+    resp = ssm.send_command(
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},
-        InstanceIds=instance.id,
+        InstanceIds=[instanceId,],
     )
 
     session = boto3.Session()
@@ -155,10 +166,10 @@ def configure_head_node(instance):
 
     breakpoint()
     commands = [f"source autobuilder/base.sh"]
-    resp = ec2.send_command(
+    resp = ssm.send_command(
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},
-        InstanceIds=instance.id,
+        InstanceIds=[instanceId,],
     )
 
     return resp
@@ -166,4 +177,4 @@ def configure_head_node(instance):
 
 if __name__ == "__main__":
     instance = create_instance()
-    configure_head_node(instance)
+    configure_head_node(instance=instance)
