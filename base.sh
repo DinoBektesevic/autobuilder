@@ -12,8 +12,6 @@ SECRET_ACCESS_KEY_ID=$2
 sudo yum update - y
 sudo yum install -y yum-utils
 
-echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-
 
 ####
 #   2) Install the packages required to perform Stack, Condor and Pegasus installations.
@@ -48,11 +46,15 @@ sudo rpm --import RPM-GPG-KEY-HTCondor
 cd /etc/yum.repos.d
 sudo wget https://research.cs.wisc.edu/htcondor/yum/repo.d/htcondor-stable-rhel8.repo
 
-sudo yum install condor
+sudo yum install -y condor
 
 #  4.1)  Install condor-annex 0
 #           Unsure how condor-annex installations work on el8
-sudo yum install condor-annex-ec2
+sudo yum install -y condor-annex-ec2
+
+# 4.2) Start HTCondor processes to create default config files
+sudo systemctl enable condor
+sudo systemctl start condor
 
 
 ####
@@ -62,20 +64,19 @@ sudo yum install condor-annex-ec2
 # 5.1) Replace default Condor configuration files with head node ones.
 cd $CWD
 
-sudo cp autobuilder/condor_head_node_config /etc/condor/config.d/local
-sudo cp autobuilder/condor-annex-ec2 /usr/libexec/condor/condor-annex-ec2
+sudo cp autobuilder/condor_head_config /etc/condor/config.d/local
+sudo cp autobuilder/condor_annex_ec2 /usr/libexec/condor/condor-annex-ec2
 
 # 5.2) Give Condor programatic access to your cloud account
 echo $SECRET_ACCESS_KEY > ~/.condor/privateKeyFile
 echo $SECRET_ACCESS_KEY_ID > ~/.condor/publicKeyFile
 sudo chmod 600 ~/.condor/*KeyFile
 
-# 5.3) Start HTCondor processes with the above configs in place.
-#      This allows us to use the condor CLI functionality to continue configuration.
-sudo systemctl enable condor
-sudo systemctl start condor
+# 5.3) Try a restart to force the erload of config files.
+condor_restart
+sudo systemctl restart condor
 
-# 5.3) Configure a Condor Pool Password.
+# 5.4) Configure a Condor Pool Password.
 #      There seems to be a neccessity for condor to see a condor owned pool passwd and
 #      for annex to see a user owned condor pool passwd. We need to duplicate the passwd
 #      file and ensure different owners. This must happen after head node configs have
