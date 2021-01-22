@@ -144,16 +144,7 @@ def configure_head_node(instance=None, instanceId=None):
 
     ssm = boto3.client("ssm", region_name="us-west-2")
 
-    ## pull builder scripts from git and run them
     breakpoint()
-    commands = ["sudo yum install git", ]
-    resp = ssm.send_command(
-        DocumentName="AWS-RunShellScript",
-        Parameters={'commands': commands},
-        InstanceIds=[instanceId,],
-    )
-
-    berakpoint()
     commands = ["git clone https://github.com/DinoBektesevic/autobuilder.git", ]
     resp = ssm.send_command(
         DocumentName="AWS-RunShellScript",
