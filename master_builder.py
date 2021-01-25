@@ -102,12 +102,13 @@ def create_instance(keyPairDir="~/.ssh/", keyPair="Dino_Bektesevic_lsstspark",
     instanceType = "m5.2xlarge"
     instanceAmi = "ami-0155c31ea13d4abd2"
     # without SSM there is no boto3 way of talking with our instances....
-    userData =  """#!/bin/bash
-    sudo yum update -y
-    sudo yum install -y yum-utils git
-    sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
-    sudo systemctl enable amazon-ssm-agent
-    sudo systemctl start amazon-ssm-agent
+    userData =  """#!/bin/bash -ex
+    exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+    yum update -y
+    yum install -y yum-utils git
+    yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+    systemctl enable amazon-ssm-agent
+    systemctl start amazon-ssm-agent
     """
     instances = ec2.create_instances(
         BlockDeviceMappings=[
