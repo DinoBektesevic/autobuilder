@@ -125,6 +125,10 @@ def create_instance(keyPairDir="~/.ssh/", keyPair="Dino_Bektesevic_lsstspark",
         InstanceType=instanceType,
         SecurityGroupIds = [securityGroup, ],
         UserData=userData,
+        IamInstanceProfile={
+            # 'Arn': "arn:aws:iam::808034228930:instance-profile/RubinAWS",
+            'Name': "RubinAWS"
+        },
         MaxCount=1,
         MinCount=1,
         KeyName=f"{keyPair}"
@@ -158,7 +162,7 @@ def configure_head_node(instance=None, instanceId=None):
     accessKey, secretKey, _ = credentials.get_frozen_credentials()
 
     breakpoint()
-    commands = [f"source autobuilder/base.sh"]
+    commands = [f"source autobuilder/base.sh {secretKey} {accesskey}"]
     resp = ssm.send_command(
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},

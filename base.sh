@@ -57,7 +57,7 @@ sudo systemctl start condor
 #   4.1) Replace default Condor configuration files with head node ones.
 cd $CWD
 
-sudo cp autobuilder/condor_head_config /etc/condor/config.d/local.config
+sudo cp autobuilder/condor_head_config /etc/condor/config.d/local
 sudo cp autobuilder/condor_annex_ec2 /usr/libexec/condor/condor-annex-ec2
 
 #   4.2) Give Condor programatic access to your cloud account
