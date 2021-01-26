@@ -36,8 +36,8 @@ sudo yum install -y condor-annex-ec2
 #   3.1) Replace default Condor configuration files with head node ones.
 cd $CWD
 
-sudo cp autobuilder/condor_head_config /etc/condor/config.d/local
-sudo cp autobuilder/condor_annex_ec2 /usr/libexec/condor/condor-annex-ec2
+sudo cp /home/centos/autobuilder/condor_head_config /etc/condor/config.d/local
+sudo cp /home/centos/autobuilder/condor_annex_ec2 /usr/libexec/condor/condor-annex-ec2
 
 #   3.2) Give Condor programatic access to your cloud account
 mkdir -p /home/centos/.condor
@@ -66,9 +66,9 @@ echo "ANNEX_DEFAULT_AWS_REGION=us-west-2" >> /home/centos/.condor/user_config
 sudo chown centos /home/centos/.condor/user_config
 
 #   3.6) Set up an HTCondor S3 Transfer Plugin
-sudo cp autobuilder/s3.sh /usr/libexec/condor/s3.sh
+sudo cp /home/centos/autobuilder/s3.sh /usr/libexec/condor/s3.sh
 sudo chmod 755 /usr/libexec/condor/s3.sh
-sudo cp autobuilder/10_s3 /etc/condor/config.d/10-s3
+sudo cp /home/centos/autobuilder/10_s3 /etc/condor/config.d/10-s3
 
 #   3.7) Follow the not-completely clear step from HTCondor manual.
 sudo rm /etc/condor/config.d/50ec2.config
