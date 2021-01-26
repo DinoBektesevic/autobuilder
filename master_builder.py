@@ -184,7 +184,7 @@ def configure_head_node(instance=None, instanceId=None):
     credentials = session.get_credentials()
     accessKey, secretKey, _ = credentials.get_frozen_credentials()
 
-    breakpoint()
+    #breakpoint()
     click.echo("  Launching head builder script. This may take a while.")
     commands = [runInHome + f"source autobuilder/base.sh {secretKey} {accessKey}"]
     resp = ssm.send_command(
@@ -193,6 +193,7 @@ def configure_head_node(instance=None, instanceId=None):
         OutputS3BucketName="testdatarepo",
         OutputS3KeyPrefix="HeadBuildLog",
         InstanceIds=[instanceId,],
+        TimeoutSeconds=1200
     )
 
     return resp
