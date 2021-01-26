@@ -168,8 +168,6 @@ def configure_head_node(instance=None, instanceId=None):
             else:
                 raise
 
-    breakpoint()
-
     runInHome = "su centos && cd /home/centos && "
     click.echo("Starting Head node build.\n")
     commands = [runInHome + "git clone https://github.com/DinoBektesevic/autobuilder.git /home/centos/autobuilder", ]
@@ -189,6 +187,8 @@ def configure_head_node(instance=None, instanceId=None):
     resp = ssm.send_command(
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},
+        OutputS3BucketName="testdatarepo",
+        OutputS3KeyPrefix="HeadBuildLog"
         InstanceIds=[instanceId,],
     )
 
