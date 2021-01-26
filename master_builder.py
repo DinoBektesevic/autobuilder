@@ -147,9 +147,29 @@ def configure_head_node(instance=None, instanceId=None):
     if instance is not None:
         instanceId = instance.id
 
+    click.echo("Waiting for SSM activation.\n This can take up to 10 minutes.")
     ssm = boto3.client("ssm", region_name="us-west-2")
 
+    ssmOn = False
+    attemptCounter = 0
+    while not ssmOn:
+        attemptCounter += 1
+        try:
+            resp = ssm.send_command(
+                DocumentName="AWS-RunShellScript",
+                Parameters={'commands': "echo $USER"},
+                InstanceIds=[instanceId,],
+            )
+            ssmOn = True
+        except ssm.exceptions.InvalidInstanceId:
+            if attemptCounter < 10:
+                click.echo(f"    Waiting for SSM activation. Attempt {attemptCounter}.")
+                time.sleep(60)
+            else:
+                raise
+
     breakpoint()
+    click.echo("Starting Head node build.")
     commands = ["git clone https://github.com/DinoBektesevic/autobuilder.git", ]
     resp = ssm.send_command(
         DocumentName="AWS-RunShellScript",
