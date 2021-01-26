@@ -89,5 +89,5 @@ cd lsst_stack
 curl -OL https://raw.githubusercontent.com/lsst/lsst/master/scripts/newinstall.sh
 bash newinstall.sh -bct
 
-source loadLSST.bash
+source /home/centos/lsst_stack/loadLSST.bash
 eups distrib install -t w_latest lsst_distrib

@@ -185,8 +185,10 @@ def configure_head_node(instance=None, instanceId=None):
     accessKey, secretKey, _ = credentials.get_frozen_credentials()
 
     #breakpoint()
+    # FIXUP later using a Waiter.
+    time.sleep(10)
     click.echo("  Launching head builder script. This may take a while.")
-    commands = [runInHome + f"source autobuilder/base.sh {secretKey} {accessKey}"]
+    commands = [runInHome + f"source /home/centos/autobuilder/base.sh {secretKey} {accessKey}"]
     resp = ssm.send_command(
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},
