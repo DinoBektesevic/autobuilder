@@ -58,12 +58,12 @@ sudo cp $passwd_file_path /home/centos/.condor/
 
 sudo chmod 600 $passwd_file_path /home/centos/.condor/condor_pool_password
 sudo chown root $passwd_file_path
-sudo chown $USER /home/centos/.condor/condor_pool_password
+sudo chown centos /home/centos/.condor/condor_pool_password
 
 #   3.5) Configure Condor Annex
-echo "SEC_PASSWORD_FILE=/home/$USER/.condor/condor_pool_password" > /home/centos/.condor/user_config
+echo "SEC_PASSWORD_FILE=/home/centos/.condor/condor_pool_password" > /home/centos/.condor/user_config
 echo "ANNEX_DEFAULT_AWS_REGION=us-west-2" >> /home/centos/.condor/user_config
-sudo chown $USER /home/centos/.condor/user_config
+sudo chown centos /home/centos/.condor/user_config
 
 #   3.6) Set up an HTCondor S3 Transfer Plugin
 sudo cp autobuilder/s3.sh /usr/libexec/condor/s3.sh

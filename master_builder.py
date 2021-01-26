@@ -76,6 +76,8 @@ def create_security_group(secGroupName="RubinAWS0",
                                FromPort=80, ToPort=80)
     secGroup.authorize_ingress(IpProtocol="tcp", CidrIp="0.0.0.0/0",
                                FromPort=22, ToPort=22)
+    secGroup.authorize_ingress(IpProtocol="tcp", CidrIp="0.0.0.0/0",
+                               FromPort=9618, ToPort=9618)
 
     return secGroup.group_id
 
@@ -97,6 +99,7 @@ def create_instance(keyPairDir="~/.ssh/", keyPair="Dino_Bektesevic_lsstspark",
     else:
         secGrpFilter = ec2.security_groups.filter(GroupNames=[securityGroup, ])
         securityGroup = [secGrp for secGrp in secGrpFilter][0].group_id
+        click.echo(f"Using security group {securityGroup}")
 
     # create a new EC2 instance
     instanceType = "m5.2xlarge"
@@ -169,7 +172,7 @@ def configure_head_node(instance=None, instanceId=None):
                 raise
 
     runInHome = "su centos && cd /home/centos && "
-    click.echo("Starting Head node build.\n")
+    click.echo("Starting Head node build.")
     commands = [runInHome + "git clone https://github.com/DinoBektesevic/autobuilder.git /home/centos/autobuilder", ]
     click.echo("  Cloning autobuilder from GitHub.")
     resp = ssm.send_command(
@@ -188,7 +191,7 @@ def configure_head_node(instance=None, instanceId=None):
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},
         OutputS3BucketName="testdatarepo",
-        OutputS3KeyPrefix="HeadBuildLog"
+        OutputS3KeyPrefix="HeadBuildLog",
         InstanceIds=[instanceId,],
     )
 
@@ -196,6 +199,5 @@ def configure_head_node(instance=None, instanceId=None):
 
 
 if __name__ == "__main__":
-    #instance = create_instance()
-    instanceId = "i-00f60f3e7f763f37b"
-    configure_head_node(instanceId=instanceId)
+    instance = create_instance()
+    configure_head_node(instance=instance)
