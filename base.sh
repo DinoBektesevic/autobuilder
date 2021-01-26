@@ -9,14 +9,14 @@ SECRET_ACCESS_KEY_ID=$2
 ####
 #   1) Install the packages required to perform Stack, Condor and Pegasus installations.
 ####
-sudo yum install -y curl patch git emacs vim wget gnupg
+sudo yum install -y curl patch git wget
 
 
 ####
 #   2) Install HTCondor - for now, probably best to be its own script or function
 #      later on as installation differs between different versions of OSs.
 ####
-cd ~
+cd /home/centos
 wget https://research.cs.wisc.edu/htcondor/yum/RPM-GPG-KEY-HTCondor
 sudo rpm --import RPM-GPG-KEY-HTCondor
 
@@ -40,10 +40,10 @@ sudo cp autobuilder/condor_head_config /etc/condor/config.d/local
 sudo cp autobuilder/condor_annex_ec2 /usr/libexec/condor/condor-annex-ec2
 
 #   3.2) Give Condor programatic access to your cloud account
-mkdir -p ~/.condor
-echo $SECRET_ACCESS_KEY > ~/.condor/privateKeyFile
-echo $SECRET_ACCESS_KEY_ID > ~/.condor/publicKeyFile
-sudo chmod 600 ~/.condor/*KeyFile
+mkdir -p /home/centos/.condor
+echo $SECRET_ACCESS_KEY > /home/centos/.condor/privateKeyFile
+echo $SECRET_ACCESS_KEY_ID > /home/centos/.condor/publicKeyFile
+sudo chmod 600 /home/centos/.condor/*KeyFile
 
 #   3.4) Configure a Condor Pool Password.
 #        Both Condor and Condor Annex need the condor pool password. But Condor needs it
@@ -54,16 +54,16 @@ random_passwd=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
 passwd_file_path=`condor_config_val SEC_PASSWORD_FILE`
 sudo condor_store_cred add -f $passwd_file_path -p $random_passwd
 
-sudo cp $passwd_file_path ~/.condor/
+sudo cp $passwd_file_path /home/centos/.condor/
 
-sudo chmod 600 $passwd_file_path ~/.condor/condor_pool_password
+sudo chmod 600 $passwd_file_path /home/centos/.condor/condor_pool_password
 sudo chown root $passwd_file_path
-sudo chown $USER ~/.condor/condor_pool_password
+sudo chown $USER /home/centos/.condor/condor_pool_password
 
 #   3.5) Configure Condor Annex
-echo "SEC_PASSWORD_FILE=/home/$USER/.condor/condor_pool_password" > ~/.condor/user_config
-echo "ANNEX_DEFAULT_AWS_REGION=us-west-2" >> ~/.condor/user_config
-sudo chown $USER ~/.condor/user_config
+echo "SEC_PASSWORD_FILE=/home/$USER/.condor/condor_pool_password" > /home/centos/.condor/user_config
+echo "ANNEX_DEFAULT_AWS_REGION=us-west-2" >> /home/centos/.condor/user_config
+sudo chown $USER /home/centos/.condor/user_config
 
 #   3.6) Set up an HTCondor S3 Transfer Plugin
 sudo cp autobuilder/s3.sh /usr/libexec/condor/s3.sh

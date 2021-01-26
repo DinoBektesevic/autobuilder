@@ -135,7 +135,7 @@ def create_instance(keyPairDir="~/.ssh/", keyPair="Dino_Bektesevic_lsstspark",
     )
     instance = instances[0]
 
-    click.echo(f"Launching {instanceType} instance from {instanceAmi}.\n"
+    click.echo(f"Launching {instanceType} instance from {instanceAmi}. \n "
     "This can take a couple of minutes.")
     instance.wait_until_running()
     click.echo(f"Instance {instance.id} running.")
@@ -157,32 +157,35 @@ def configure_head_node(instance=None, instanceId=None):
         try:
             resp = ssm.send_command(
                 DocumentName="AWS-RunShellScript",
-                Parameters={'commands': "echo $USER"},
+                Parameters={'commands': ["echo $USER", ]},
                 InstanceIds=[instanceId,],
             )
             ssmOn = True
         except ssm.exceptions.InvalidInstanceId:
-            if attemptCounter < 10:
-                click.echo(f"    Waiting for SSM activation. Attempt {attemptCounter}.")
-                time.sleep(60)
+            if attemptCounter < 20:
+                click.echo(f"    Attempt {attemptCounter}.")
+                time.sleep(30)
             else:
                 raise
 
     breakpoint()
-    click.echo("Starting Head node build.")
-    commands = ["git clone https://github.com/DinoBektesevic/autobuilder.git", ]
+
+    runInHome = "su centos && cd /home/centos && "
+    click.echo("Starting Head node build.\n")
+    commands = [runInHome + "git clone https://github.com/DinoBektesevic/autobuilder.git /home/centos/autobuilder", ]
+    click.echo("  Cloning autobuilder from GitHub.")
     resp = ssm.send_command(
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},
         InstanceIds=[instanceId,],
     )
-
     session = boto3.Session()
     credentials = session.get_credentials()
     accessKey, secretKey, _ = credentials.get_frozen_credentials()
 
     breakpoint()
-    commands = [f"source autobuilder/base.sh {secretKey} {accesskey}"]
+    click.echo("  Launching head builder script. This may take a while.")
+    commands = [runInHome + f"source autobuilder/base.sh {secretKey} {accessKey}"]
     resp = ssm.send_command(
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},
@@ -193,5 +196,6 @@ def configure_head_node(instance=None, instanceId=None):
 
 
 if __name__ == "__main__":
-    instance = create_instance()
-    configure_head_node(instance=instance)
+    #instance = create_instance()
+    instanceId = "i-00f60f3e7f763f37b"
+    configure_head_node(instanceId=instanceId)
