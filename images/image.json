@@ -1,0 +1,34 @@
+{
+  "variables": {
+      "aws_region": "us-west-2",
+      "profile": "dirac"
+  },
+  "builders": [
+      {
+          "type": "amazon-ebs",
+          "access_key": "{{user `aws_access_key`}}",
+          "secret_key": "{{user `aws_secret_key`}}",
+          "region": "{{user `aws_region`}}",
+          "source_ami_filter": {
+              "filters": {
+                  "virtualization-type": "hvm",
+                  "name": "CentOS 8.3.2011 x86_64",
+                  "root-device-type": "ebs"
+              },
+              "owners": [
+                  "125523088429"
+              ],
+              "most_recent": true
+          },
+          "instance_type": "m5.2xlarge",
+          "ssh_username": "centos",
+          "ami_name": "trialBuild{{timestamp}}"
+      }
+  ],
+  "provisioners": [
+    {
+        "type": "shell",
+        "script": "../scripts/setup.sh"
+    }
+]
+}
