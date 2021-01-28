@@ -22,14 +22,13 @@ git clone -b packer https://github.com/DinoBektesevic/autobuilder.git
 wget https://research.cs.wisc.edu/htcondor/yum/RPM-GPG-KEY-HTCondor
 sudo rpm --import RPM-GPG-KEY-HTCondor
 
-cd /etc/yum.repos.d
-sudo wget https://research.cs.wisc.edu/htcondor/yum/repo.d/htcondor-stable-rhel8.repo
+sudo curl --output /etc/yum.repos.d/htcondor-stable-rhel8.repo \
+     https://research.cs.wisc.edu/htcondor/yum/repo.d/htcondor-stable-rhel8.repo
 
 sudo yum install -y condor
 
 #   2.1) Fix Condor's SELinux conflicts and start it to create default configs.
 sudo chmod 755 /var/log
-sudo systemctl enable condor
 sudo systemctl start condor
 
 #   2.2)  Install condor-annex 0
@@ -60,6 +59,8 @@ sudo chmod 600 ~/.condor/*KeyFile
 #        that's where passwd file path is set.
 random_passwd=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
 passwd_file_path=`condor_config_val SEC_PASSWORD_FILE`
+echo $random_paswd
+echo $passwd_file_path
 sudo condor_store_cred add -f $passwd_file_path -p $random_passwd
 
 sudo cp $passwd_file_path ~/.condor/
@@ -82,7 +83,12 @@ sudo cp ~/autobuilder/configs/10_s3 /etc/condor/config.d/10-s3
 sudo rm /etc/condor/config.d/50ec2.config
 
 #   3.7) Restart Condor to reload config values. Run annex configurator.
+sudo systemctl enable condor
 sudo systemctl restart condor
+
+sudo systemctl enable condor-annex-ec2
+sudo systemctl restart condor-annex-ec2
+
 condor_annex -aws-region $AWS_REGION -setup
 condor_annex -check-setup
 
@@ -90,9 +96,8 @@ condor_annex -check-setup
 #   4) Install Pegasus.
 #      This must occur after Condor installation since Condor is pre-requisite.
 ####
-sudo curl --output /etc/yum.repos.d/pegasus.repo \
-          https://download.pegasus.isi.edu/wms/download/rhel/8/pegasus.repo
-sudo yum install pegasus
+wget https://download.pegasus.isi.edu/wms/download/rhel/8/x86_64/
+sudo yum localinstall -y pegasus
 
 
 ####
