@@ -11,7 +11,7 @@ CWD=$(pwd)
 #   1) Install the packages required to perform Stack, Condor and Pegasus installations.
 ####
 sudo yum update -y
-sudo yum install -y curl patch git wget
+sudo yum install -y curl patch git wget diffutils
 git clone -b packer https://github.com/DinoBektesevic/autobuilder.git
 
 
