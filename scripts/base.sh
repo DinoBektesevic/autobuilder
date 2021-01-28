@@ -59,8 +59,6 @@ sudo chmod 600 ~/.condor/*KeyFile
 #        that's where passwd file path is set.
 random_passwd=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
 passwd_file_path=`condor_config_val SEC_PASSWORD_FILE`
-echo $random_paswd
-echo $passwd_file_path
 sudo condor_store_cred add -f $passwd_file_path -p $random_passwd
 
 sudo cp $passwd_file_path ~/.condor/
@@ -69,9 +67,11 @@ sudo chmod 600 $passwd_file_path ~/.condor/condor_pool_password
 sudo chown root $passwd_file_path
 sudo chown $USER ~/.condor/condor_pool_password
 
+ls -al ~/.condor/
+
 #   3.4) Configure Condor Annex
 echo "SEC_PASSWORD_FILE=/home/centos/.condor/condor_pool_password" > ~/.condor/user_config
-echo "ANNEX_DEFAULT_AWS_REGION=${!AWS_REGION}" >> ~/.condor/user_config
+echo "ANNEX_DEFAULT_AWS_REGION=${AWS_REGION}" >> ~/.condor/user_config
 sudo chown $USER ~/.condor/user_config
 
 #   3.5) Set up an HTCondor S3 Transfer Plugin
@@ -87,7 +87,7 @@ sudo systemctl enable condor
 sudo systemctl restart condor
 
 sudo systemctl enable condor-annex-ec2
-sudo systemctl restart condor-annex-ec2
+sudo systemctl start condor-annex-ec2
 
 condor_annex -aws-region $AWS_REGION -setup
 condor_annex -check-setup
@@ -96,8 +96,8 @@ condor_annex -check-setup
 #   4) Install Pegasus.
 #      This must occur after Condor installation since Condor is pre-requisite.
 ####
-wget https://download.pegasus.isi.edu/wms/download/rhel/8/x86_64/
-sudo yum localinstall -y pegasus
+wget https://download.pegasus.isi.edu/wms/download/rhel/8/x86_64/pegasus-5.0.0-1.el8.x86_64.rpm
+sudo yum localinstall -y pegasus-5.0.0-1.el8.x86_64.rpm
 
 
 ####
