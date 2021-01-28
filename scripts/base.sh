@@ -10,7 +10,13 @@ CWD=$(pwd)
 ####
 #   1) Install the packages required to perform Stack, Condor and Pegasus installations.
 ####
-#sudo yum update -y
+#   1.1) EPEL and Powertools are needed because of Pegasus dependencies, even though it
+#        makes the installation much longer.
+sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+sudo dnf config-manager --set-enabled powertools
+
+#   1.2) This should be common to all installation steps.
+sudo yum update -y
 sudo yum install -y curl patch git wget diffutils java
 git clone -b packer https://github.com/DinoBektesevic/autobuilder.git
 
@@ -44,8 +50,8 @@ sudo cp ~/autobuilder/configs/condor_annex_ec2 /usr/libexec/condor/condor-annex-
 
 #   3.2) Give Condor programatic access to your cloud account
 mkdir -p ~/.condor
-echo $SECRET_ACCESS_KEY > ~/.condor/privateKeyFile
-echo $SECRET_ACCESS_KEY_ID > ~/.condor/publicKeyFile
+echo $AWS_SECRET_KEY > ~/.condor/privateKeyFile
+echo $AWS_ACCESS_KEY > ~/.condor/publicKeyFile
 sudo chmod 600 ~/.condor/*KeyFile
 
 #   3.3) Configure a Condor Pool Password.
@@ -62,8 +68,6 @@ sudo cp $passwd_file_path ~/.condor/
 sudo chmod 600 $passwd_file_path ~/.condor/condor_pool_password
 sudo chown root $passwd_file_path
 sudo chown $USER ~/.condor/condor_pool_password
-
-ls -al ~/.condor/
 
 #   3.4) Configure Condor Annex
 echo "SEC_PASSWORD_FILE=/home/centos/.condor/condor_pool_password" > ~/.condor/user_config
