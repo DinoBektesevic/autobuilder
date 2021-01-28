@@ -10,13 +10,9 @@ CWD=$(pwd)
 ####
 #   1) Install the packages required to perform Stack, Condor and Pegasus installations.
 ####
+sudo yum update -y
 sudo yum install -y curl patch git wget
 git clone -b packer https://github.com/DinoBektesevic/autobuilder.git
-cd autobuilder
-git checkout packer
-ls
-cd ..
-
 
 
 ####
@@ -31,7 +27,9 @@ sudo wget https://research.cs.wisc.edu/htcondor/yum/repo.d/htcondor-stable-rhel8
 
 sudo yum install -y condor
 
+#   2.1) Fix Condor's SELinux conflicts and start it to create default configs.
 sudo chmod 755 /var/log
+sudo systemctl enable condor
 sudo systemctl start condor
 
 #   2.1)  Install condor-annex 0
@@ -83,9 +81,8 @@ sudo cp ~/autobuilder/configs/10_s3 /etc/condor/config.d/10-s3
 #   3.7) Follow the not-completely clear step from HTCondor manual.
 sudo rm /etc/condor/config.d/50ec2.config
 
-#   3.8) Start Condor to reload config values. Enable start at boot permanently.
-sudo systemctl enable condor
-sudo systemctl start condor
+#   3.8) Restart Condor to reload config values.
+sudo systemctl restart condor
 
 
 ####
