@@ -10,7 +10,7 @@ CWD=$(pwd)
 ####
 #   1) Install the packages required to perform Stack, Condor and Pegasus installations.
 ####
-sudo yum update -y
+#sudo yum update -y
 sudo yum install -y curl patch git wget diffutils java
 git clone -b packer https://github.com/DinoBektesevic/autobuilder.git
 
@@ -30,10 +30,6 @@ sudo yum install -y condor
 #   2.1) Fix Condor's SELinux conflicts and start it to create default configs.
 sudo chmod 755 /var/log
 sudo systemctl start condor
-
-#   2.2)  Install condor-annex 0
-#           Unsure how condor-annex installations work on el8
-sudo yum install -y condor-annex-ec2
 
 
 ####
@@ -86,9 +82,6 @@ sudo rm /etc/condor/config.d/50ec2.config
 sudo systemctl enable condor
 sudo systemctl restart condor
 
-sudo systemctl enable condor-annex-ec2
-sudo systemctl start condor-annex-ec2
-
 condor_annex -aws-region $AWS_REGION -setup
 condor_annex -check-setup
 
@@ -96,7 +89,7 @@ condor_annex -check-setup
 #   4) Install Pegasus.
 #      This must occur after Condor installation since Condor is pre-requisite.
 ####
-wget https://download.pegasus.isi.edu/wms/download/rhel/8/x86_64/pegasus-5.0.0-1.el8.x86_64.rpm
+wget -q https://download.pegasus.isi.edu/wms/download/rhel/8/x86_64/pegasus-5.0.0-1.el8.x86_64.rpm
 sudo yum localinstall -y pegasus-5.0.0-1.el8.x86_64.rpm
 
 
