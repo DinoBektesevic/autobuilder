@@ -1,7 +1,10 @@
 {
   "variables": {
       "aws_region": "us-west-2",
-      "profile": "dirac"
+      "profile": "dirac",
+      "instance_type": "m5.2xlarge"
+      "volume_size": "100",
+      "base_ami_name": "CentOS 8.3.2011 x86_64"
   },
   "builders": [
       {
@@ -12,7 +15,7 @@
           "source_ami_filter": {
               "filters": {
                   "virtualization-type": "hvm",
-                  "name": "CentOS 8.3.2011 x86_64",
+                  "name": "{{user `base_ami_name`}}",
                   "root-device-type": "ebs"
               },
               "owners": [
@@ -20,7 +23,15 @@
               ],
               "most_recent": true
           },
-          "instance_type": "m5.2xlarge",
+          "instance_type": "{{user `instance_type`}}",
+          "launch_block_device_mappings": [
+              {
+                  "device_name": "/dev/sda1",
+                  "volume_size": "{{user `volume_size`}}",
+                  "volume_type": "gp2",
+                  "delete_on_termination": true
+              }
+          ],
           "ssh_username": "centos",
           "ami_name": "trialBuild{{timestamp}}"
       }
