@@ -11,7 +11,7 @@ CWD=$(pwd)
 #   1) Install the packages required to perform Stack, Condor and Pegasus installations.
 ####
 sudo yum update -y
-sudo yum install -y curl patch git wget diffutils
+sudo yum install -y curl patch git wget diffutils java
 git clone -b packer https://github.com/DinoBektesevic/autobuilder.git
 
 
@@ -32,7 +32,7 @@ sudo chmod 755 /var/log
 sudo systemctl enable condor
 sudo systemctl start condor
 
-#   2.1)  Install condor-annex 0
+#   2.2)  Install condor-annex 0
 #           Unsure how condor-annex installations work on el8
 sudo yum install -y condor-annex-ec2
 
@@ -53,7 +53,7 @@ echo $SECRET_ACCESS_KEY > ~/.condor/privateKeyFile
 echo $SECRET_ACCESS_KEY_ID > ~/.condor/publicKeyFile
 sudo chmod 600 ~/.condor/*KeyFile
 
-#   3.4) Configure a Condor Pool Password.
+#   3.3) Configure a Condor Pool Password.
 #        Both Condor and Condor Annex need the condor pool password. But Condor needs it
 #        to be securely owned by the root and Annex needs it securely owned by USER.
 #        This must happen after head node configs have been detected by condor, since
@@ -68,32 +68,42 @@ sudo chmod 600 $passwd_file_path ~/.condor/condor_pool_password
 sudo chown root $passwd_file_path
 sudo chown $USER ~/.condor/condor_pool_password
 
-#   3.5) Configure Condor Annex
+#   3.4) Configure Condor Annex
 echo "SEC_PASSWORD_FILE=/home/centos/.condor/condor_pool_password" > ~/.condor/user_config
-echo "ANNEX_DEFAULT_AWS_REGION=us-west-2" >> ~/.condor/user_config
+echo "ANNEX_DEFAULT_AWS_REGION=${!AWS_REGION}" >> ~/.condor/user_config
 sudo chown $USER ~/.condor/user_config
 
-#   3.6) Set up an HTCondor S3 Transfer Plugin
+#   3.5) Set up an HTCondor S3 Transfer Plugin
 sudo cp ~/autobuilder/configs/s3.sh /usr/libexec/condor/s3.sh
 sudo chmod 755 /usr/libexec/condor/s3.sh
 sudo cp ~/autobuilder/configs/10_s3 /etc/condor/config.d/10-s3
 
-#   3.7) Follow the not-completely clear step from HTCondor manual.
+#   3.6) Follow the not-completely clear step from HTCondor manual.
 sudo rm /etc/condor/config.d/50ec2.config
 
-#   3.8) Restart Condor to reload config values.
+#   3.7) Restart Condor to reload config values. Run annex configurator.
 sudo systemctl restart condor
+condor_annex -aws-region $AWS_REGION -setup
+condor_annex -check-setup
+
+####
+#   4) Install Pegasus.
+#      This must occur after Condor installation since Condor is pre-requisite.
+####
+sudo curl --output /etc/yum.repos.d/pegasus.repo \
+          https://download.pegasus.isi.edu/wms/download/rhel/8/pegasus.repo
+sudo yum install pegasus
 
 
 ####
-#   4) Install the stack with newinstall.sh method
+#   5) Install the stack with newinstall.sh method
 #      This is best done first so that Pegasus and HTCondor can be installed within the
 #      miniconda env of the stack.
 ####
 mkdir -p lsst_stack
 cd lsst_stack
 
-#   4.1) TODO: Update link to use master once the problem with env0.2.1 goes away
+#   5.1) TODO: Update link to use master once the problem with env0.2.1 goes away
 curl -OL https://raw.githubusercontent.com/lsst/lsst/w.2021.04/scripts/newinstall.sh
 bash ~/lsst_stack/newinstall.sh -bct
 
