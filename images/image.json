@@ -28,7 +28,11 @@
   "provisioners": [
     {
         "type": "shell",
-        "script": "../scripts/setup.sh"
+        "environment_vars": [
+            "AWS_ACCESS_KEY={{user `aws_access_key`}}",
+            "AWS_SECRET_KEY={{user `aws_secret_key`}}"
+        ],
+        "script": "../scripts/base.sh"
     }
 ]
 }
