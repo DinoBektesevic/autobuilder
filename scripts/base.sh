@@ -93,7 +93,8 @@ sudo systemctl restart condor
 mkdir -p lsst_stack
 cd lsst_stack
 
-curl -OL https://raw.githubusercontent.com/lsst/lsst/master/scripts/newinstall.sh
+#   4.1) TODO: Update link to use master once the problem with env0.2.1 goes away
+curl -OL https://raw.githubusercontent.com/lsst/lsst/w.2021.04/scripts/newinstall.sh
 bash ~/lsst_stack/newinstall.sh -bct
 
 source ~/lsst_stack/loadLSST.bash
