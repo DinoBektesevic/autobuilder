@@ -94,6 +94,7 @@ sudo rm /etc/condor/config.d/50ec2.config
 #   3.7) Restart Condor to reload config values. Run annex configurator.
 sudo systemctl enable condor
 sudo systemctl restart condor
+sudo systemctl restart condor-annex-ec2
 
 condor_annex -aws-region $AWS_REGION -setup
 condor_annex -check-setup
