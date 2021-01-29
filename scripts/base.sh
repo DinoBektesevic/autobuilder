@@ -44,7 +44,6 @@ sudo systemctl start condor
 #         one (see 3.1). This also creates default config files, which are
 #         then deleted (see 3.6).
 sudo yum install -y condor-annex-ec2
-sudo systemctl start condor-annex-ec2
 
 
 ####
@@ -93,8 +92,10 @@ sudo rm /etc/condor/config.d/50ec2.config
 
 #   3.7) Restart Condor to reload config values. Run annex configurator.
 sudo systemctl enable condor
+sudo systemctl enable condor-annex-ec2
+
+sudo systemctl start condor-annex-ec2
 sudo systemctl restart condor
-sudo systemctl restart condor-annex-ec2
 
 condor_annex -aws-region $AWS_REGION -setup
 condor_annex -check-setup
