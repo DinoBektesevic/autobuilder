@@ -40,8 +40,8 @@
     {
         "type": "shell",
         "environment_vars": [
-            "AWS_ACCESS_KEY={{user `aws_access_key`}}",
-            "AWS_SECRET_KEY={{user `aws_secret_key`}}",
+            "AWS_ACCESS_KEY_ID={{user `aws_access_key`}}",
+            "AWS_SECRET_ACCESS_KEY={{user `aws_secret_key`}}",
             "AWS_REGION={{user `aws_region`}}"
         ],
         "script": "../scripts/base.sh"

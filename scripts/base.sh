@@ -59,8 +59,8 @@ sudo cp ~/autobuilder/configs/condor_annex_ec2 /usr/libexec/condor/condor-annex-
 #   3.2) Give Condor programatic access to your cloud account
 #        (TODO: see how to avoid by setting up IAMs in Terraform or similar)
 mkdir -p ~/.condor
-echo $AWS_SECRET_KEY > ~/.condor/privateKeyFile
-echo $AWS_ACCESS_KEY > ~/.condor/publicKeyFile
+echo $AWS_SECRET_ACCESS_KEY > ~/.condor/privateKeyFile
+echo $AWS_ACCESS_KEY_ID > ~/.condor/publicKeyFile
 sudo chmod 600 ~/.condor/*KeyFile
 
 #   3.3) Configure a Condor Pool Password.
