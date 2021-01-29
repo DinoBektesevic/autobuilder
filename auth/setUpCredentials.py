@@ -15,7 +15,6 @@ prompted.
 ================================================================================
 """
 
-
 def validate(accessKeyId, secretAccessKey):
     """
     Validates that given credentials are correct by simulating
@@ -54,7 +53,7 @@ def validate(accessKeyId, secretAccessKey):
     try:
         arn = sts.get_caller_identity()["Arn"]
     except botocore.exceptions.ClientError as e:
-        print("Incorrect credentials: ", e.response["Error"]["Code"])
+        print(f"Incorrect credentials: {e.response['Error']['Code']}")
         return False
 
     # Create an arn representing the objects in a bucket
@@ -120,7 +119,7 @@ def createCondorFiles(accessKeyId, secretAccessKey):
     for pair in pairs:
         with open(pair["path"], "w") as credFile:
             credFile.write(pair["key"])
-            print(f"Created {pair['path']}")
+            print("Created %s" % (pipes.quote(str((pair['path'])))))
         os.chmod(pair["path"], 0o600)
 
 
@@ -136,10 +135,10 @@ def exportCredToEnv(accessKeyId, secretAccessKey):
     secretAccessKey : `str`
         AWS Secret Access Key
     """
-    print("export AWS_ACCESS_KEY_ID=%s" % (pipes.quote(str(accessKeyId))))
-    print("Exported AWS_ACCESS_KEY_ID to environment variables.")
-    print("export AWS_SECRET_ACCESS_KEY=%s" % (pipes.quote(str(secretAccessKey))))
-    print("Exported AWS_SECRET_ACCESS_KEY to environment variables.")
+    #print("export AWS_ACCESS_KEY_ID=%s" % (pipes.quote(str(accessKeyId))))
+    print("Exported AWS_ACCESS_KEY_ID to environment variable.")
+    #print("export AWS_SECRET_ACCESS_KEY=%s" % (pipes.quote(str(secretAccessKey))))
+    print("Exported AWS_SECRET_ACCESS_KEY to environment variable.")
 
 
 def checkCredentialsFile(filepath):
@@ -160,6 +159,7 @@ def checkCredentialsFile(filepath):
     cred : `str` or `None`
         Contents of the file if nonempty. None otherwise.
     """
+    filepath = os.path.expanduser(filepath) if "~" in filepath else filepath
     exists = False
     cred = None
     try:
@@ -215,9 +215,9 @@ def checkCredentials():
     """
     cred = {"exist": False, "accessKeyId": None, "secretKey": None}
 
-    access1, accessKeyId1 = checkCredentialsFile("~/.condor/publicKeyFile")
-    secret1, secretKeyId1 = checkCredentialsFile("~/.condor/privateKeyFile")
-    access2, accessKeyId2 = checkEnvVar("AWS_ACCESS_KEY_ID")
+    access1, accessKey1 = checkCredentialsFile("~/.condor/publicKeyFile")
+    secret1, secretKey1 = checkCredentialsFile("~/.condor/privateKeyFile")
+    access2, accessKey2 = checkEnvVar("AWS_ACCESS_KEY_ID")
     secret2, secretKey2 = checkEnvVar("AWS_SECRET_ACCESS_KEY")
 
     accessExists = access1 or access2
@@ -235,7 +235,8 @@ if __name__ == "__main__":
     cred = checkCredentials()
 
     if cred["exist"]:
-        accessKeyId, secretAccessKey = cred["accessKeyId"], cred["secretKey"]
+        accessKeyId = cred["accessKeyId"].split("=")[-1].strip()
+        secretAccessKey = cred["secretKey"].split("=")[-1].strip()
         createCondorFiles(accessKeyId, secretAccessKey)
         exportCredToEnv(accessKeyId, secretAccessKey)
     else:
@@ -246,4 +247,4 @@ if __name__ == "__main__":
         exportCredToEnv(accessKeyId, secretAccessKey)
 
     print()
-    print("You're all set up!")
+    print("Set up done!")
