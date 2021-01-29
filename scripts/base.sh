@@ -130,6 +130,7 @@ cd $CWD
 mkdir -p .install
 mv -r autobuilder RPM-GPG-KEY-HTCondor pegasus-5.0.0-1.el8.x86_64.rpm -t .install/
 
+echo "# The following commands were added by Rubin AWS autobuilder."
 echo "source ~/lsst_stack/loadLSST.bash" >> ~/.bashrc
 echo "setup lsst_distrib" >> ~/.bashrc
-echo "python ~/.install/autobuilder/auth/setUpCredentials.py" >> ~/.bashrc
+echo "source ~/.install/autobuilder/auth/authenticate.sh" >> ~/.bashrc

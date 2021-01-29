@@ -189,7 +189,7 @@ def checkEnvVar(envVar):
     exists = False
     cred = None
     try:
-        cred = os.environ["AWS_ACCESS_KEY_ID"]
+        cred = os.environ[envVar]
     except KeyError:
         pass
     return exists, cred
