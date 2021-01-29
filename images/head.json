@@ -2,7 +2,7 @@
   "variables": {
       "aws_region": "us-west-2",
       "profile": "dirac",
-      "instance_type": "m5.2xlarge"
+      "instance_type": "m5.2xlarge",
       "volume_size": "100",
       "base_ami_name": "CentOS 8.3.2011 x86_64"
   },

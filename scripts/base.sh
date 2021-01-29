@@ -8,22 +8,21 @@ CWD=$(pwd)
 
 
 ####
-#   1) Install the packages required to perform Stack, Condor and Pegasus installations.
+#   1) Install the packages required to perform Stack, Condor and Pegasus
+#      installations.
 ####
-#   1.1) EPEL and Powertools are needed because of Pegasus dependencies, even though it
-#        makes the installation much longer.
+#   1.1) EPEL and Powertools are needed because of Pegasus dependencies, even
+#        though it makes the installation much longer.
 sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 sudo dnf config-manager --set-enabled powertools
 
-#   1.2) This should be common to all installation steps.
 sudo yum update -y
 sudo yum install -y curl patch git wget diffutils java
 git clone -b packer https://github.com/DinoBektesevic/autobuilder.git
 
 
 ####
-#   2) Install HTCondor - for now, probably best to be its own script or function
-#      later on as installation differs between different versions of OSs.
+#   2) Install HTCondor for CentOS 8
 ####
 wget https://research.cs.wisc.edu/htcondor/yum/RPM-GPG-KEY-HTCondor
 sudo rpm --import RPM-GPG-KEY-HTCondor
@@ -37,18 +36,28 @@ sudo yum install -y condor
 sudo chmod 755 /var/log
 sudo systemctl start condor
 
+#   2.2 ) condor-annex-ec2 service is only supposed to be run on machines *which*
+#         condor_annex adds to the pool. But we need the package on head as well
+#         because it is designed to detect instance parameters at instance start
+#         and we do not use long-lived head nodes. The reason why it won't hang
+#         at boot-up on master is that we replace the bootup script with a custom
+#         one (see 3.1). This also creates default config files, which are
+#         then deleted (see 3.6).
+sudo yum install -y condor-annex-ec2
+sudo systemctl start condor-annex-ec2
+
 
 ####
-#   3) Configure instance as HTCondor head node - probably best to be a separate script.
-#      Good for testing for now.
+#   3) Configure instance as HTCondor head node
 ####
-#   3.1) Replace default Condor configuration files with head node ones.
+#   3.1) Replace default Condor configuration files and fix condor-annex-ec2 script
 cd $CWD
 
 sudo cp ~/autobuilder/configs/condor_head_config /etc/condor/config.d/local
 sudo cp ~/autobuilder/configs/condor_annex_ec2 /usr/libexec/condor/condor-annex-ec2
 
 #   3.2) Give Condor programatic access to your cloud account
+#        (TODO: see how to avoid by setting up IAMs in Terraform or similar)
 mkdir -p ~/.condor
 echo $AWS_SECRET_KEY > ~/.condor/privateKeyFile
 echo $AWS_ACCESS_KEY > ~/.condor/publicKeyFile
@@ -79,7 +88,7 @@ sudo cp ~/autobuilder/configs/s3.sh /usr/libexec/condor/s3.sh
 sudo chmod 755 /usr/libexec/condor/s3.sh
 sudo cp ~/autobuilder/configs/10_s3 /etc/condor/config.d/10-s3
 
-#   3.6) Follow the not-completely clear step from HTCondor manual.
+#   3.6) By now it should be safe to remove the default condor-annex-ec2 config.
 sudo rm /etc/condor/config.d/50ec2.config
 
 #   3.7) Restart Condor to reload config values. Run annex configurator.
@@ -91,7 +100,7 @@ condor_annex -check-setup
 
 ####
 #   4) Install Pegasus.
-#      This must occur after Condor installation since Condor is pre-requisite.
+#      This must occur after Condor installation since Condor is a dependency
 ####
 wget -q https://download.pegasus.isi.edu/wms/download/rhel/8/x86_64/pegasus-5.0.0-1.el8.x86_64.rpm
 sudo yum localinstall -y pegasus-5.0.0-1.el8.x86_64.rpm
@@ -112,3 +121,15 @@ bash ~/lsst_stack/newinstall.sh -bct
 source ~/lsst_stack/loadLSST.bash
 eups distrib install -t w_latest lsst_distrib
 
+
+####
+#   6) Cleanup
+####
+cd $CWD
+
+mkdir -p .install
+mv -r autobuilder RPM-GPG-KEY-HTCondor pegasus-5.0.0-1.el8.x86_64.rpm -t .install/
+
+echo "source ~/lsst_stack/loadLSST.bash" >> ~/.bashrc
+echo "setup lsst_distrib" >> ~/.bashrc
+echo "python ~/.install/autobuilder/auth/setUpCredentials.py" >> ~/.bashrc
