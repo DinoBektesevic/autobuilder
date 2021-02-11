@@ -6,8 +6,8 @@ set -x
 #  This script will configure a node as a HTCondor's worker node
 #  using default setup provided by the Rubin AWS autobuilder package.
 ####
-CWD=$(pwd)
-git clone -b packer https://github.com/DinoBektesevic/autobuilder.git
+CWD=$1
+cd CWD
 
 
 ####

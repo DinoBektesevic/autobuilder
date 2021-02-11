@@ -4,7 +4,8 @@ set -x
 ####
 #  This script will install HTCondor, HTCondor Annex, Pegasus and Rubin Software Stack.
 ####
-CWD=$(pwd)
+CWD=$1
+cd CWD
 
 
 ####
@@ -66,5 +67,5 @@ cd lsst_stack
 curl -OL https://raw.githubusercontent.com/lsst/lsst/master/scripts/newinstall.sh
 bash ~/lsst_stack/newinstall.sh -bct
 
-source ~/lsst_stack/loadLSST.bash
-eups distrib install -t w_latest lsst_distrib
+#source ~/lsst_stack/loadLSST.bash
+#eups distrib install -t w_latest lsst_distrib
