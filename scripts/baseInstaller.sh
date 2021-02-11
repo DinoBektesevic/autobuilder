@@ -18,7 +18,7 @@ sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.
 sudo dnf config-manager --set-enabled powertools
 
 sudo yum update -y
-sudo yum install -y curl patch wget diffutils java
+sudo yum install -y curl patch wget git diffutils java
 
 git clone -b packer https://github.com/DinoBektesevic/autobuilder.git
 
@@ -67,5 +67,5 @@ cd lsst_stack
 curl -OL https://raw.githubusercontent.com/lsst/lsst/master/scripts/newinstall.sh
 bash ~/lsst_stack/newinstall.sh -bct
 
-#source ~/lsst_stack/loadLSST.bash
-#eups distrib install -t w_latest lsst_distrib
+source ~/lsst_stack/loadLSST.bash
+eups distrib install -t w_latest lsst_distrib
