@@ -22,5 +22,3 @@ sudo rm /etc/condor/config.d/50ec2.config
 sudo systemctl restart condor
 sudo systemctl start condor-annex-ec2
 sudo systemctl enable condor-annex-ec2
-
-

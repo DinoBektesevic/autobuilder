@@ -8,8 +8,8 @@ CWD=$(pwd)
 
 
 ####
-#   1) Install the packages required to perform Stack, Condor and Pegasus
-#      installations.
+#   1) Get the autobuilder and then install the packages required to perform
+#      Stack, Condor and Pegasus installations.
 ####
 #   1.1) EPEL and Powertools are needed because of Pegasus dependencies, even
 #        though it makes the installation much longer.
@@ -69,10 +69,3 @@ bash ~/lsst_stack/newinstall.sh -bct
 
 source ~/lsst_stack/loadLSST.bash
 eups distrib install -t w_latest lsst_distrib
-
-
-####
-#   5) Cleanup
-####
-cd $CWD
-mkdir -p .install
