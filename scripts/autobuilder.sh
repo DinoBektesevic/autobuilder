@@ -3,26 +3,26 @@ set -x
 
 BUILD_TYPE=$1
 build_type="None"
-#case $BUILD_TYPE in
-#    "Worker")
-#        build_type="worker"
-#        ;;
-#    "WORKER")
-#        build_type="worker"
-#        ;;
-#    "worker")
-#        build_type="worker"
-#        ;;
-#    "Head")
-#        build_type="head"
-#        ;;
-#    "HEAD")
-#        build_type="head"
-#        ;;
-#    "head")
-#        build_type="head"
-#        ;;
-#esac
+case $BUILD_TYPE in
+    "Worker")
+        build_type="worker"
+        ;;
+    "WORKER")
+        build_type="worker"
+        ;;
+    "worker")
+        build_type="worker"
+        ;;
+    "Head")
+        build_type="head"
+        ;;
+    "HEAD")
+        build_type="head"
+        ;;
+    "head")
+        build_type="head"
+        ;;
+esac
 
 CWD=$(pwd)
 
