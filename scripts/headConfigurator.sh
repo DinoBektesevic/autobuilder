@@ -27,6 +27,8 @@ sudo cp ~/autobuilder/configs/condor_annex_ec2 /usr/libexec/condor/condor-annex-
 #        to be securely owned by the root and Annex needs it securely owned by USER.
 #        This must happen after head node configs have been detected by condor, since
 #        that's where passwd file path is set.
+mkdir -p ~/.condor
+
 random_passwd=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
 passwd_file_path=`condor_config_val SEC_PASSWORD_FILE`
 sudo condor_store_cred add -f $passwd_file_path -p $random_passwd
@@ -45,8 +47,6 @@ sudo cp ~/autobuilder/configs/10_s3 /etc/condor/config.d/10-s3
 #   1.3) Configure Condor Annex Defaults. If credentials are non-empty strings
 #        configure keys so that Condor Annex can succesfully run. Keys are cleanued
 #        up later.
-mkdir -p ~/.condor
-
 if [ $RUN_ANNEX_SETUP = true ]; then
     echo $AWS_SECRET_ACCESS_KEY > ~/.condor/privateKeyFile
     echo $AWS_ACCESS_KEY_ID > ~/.condor/publicKeyFile
