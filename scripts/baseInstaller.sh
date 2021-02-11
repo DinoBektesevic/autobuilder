@@ -5,7 +5,7 @@ set -x
 #  This script will install HTCondor, HTCondor Annex, Pegasus and Rubin Software Stack.
 ####
 CWD=$1
-cd CWD
+cd $CWD
 
 
 ####

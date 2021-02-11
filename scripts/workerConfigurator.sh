@@ -7,7 +7,7 @@ set -x
 #  using default setup provided by the Rubin AWS autobuilder package.
 ####
 CWD=$1
-cd CWD
+cd $CWD
 
 
 ####

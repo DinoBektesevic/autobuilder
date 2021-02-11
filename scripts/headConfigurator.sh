@@ -7,7 +7,7 @@ set -x
 #  using default setup provided by the Rubin AWS autobuilder package.
 ####
 CWD=$1
-cd CWD
+cd $CWD
 
 if [ -z "$AWS_SECRET_ACCESS_KEY" ] && [ -z "$AWS_ACCESS_KEY_ID" ]; then
     RUN_ANNEX_SETUP=true

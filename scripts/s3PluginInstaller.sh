@@ -2,7 +2,7 @@
 set -x
 
 CWD=$1
-cd CWD
+cd $CWD
 
 ####
 #  This script will configure an S3 Transfer pluguin so that HTCondor
