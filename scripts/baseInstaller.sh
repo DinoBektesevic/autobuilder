@@ -19,7 +19,7 @@ sudo dnf config-manager --set-enabled powertools
 sudo yum update -y
 sudo yum install -y curl patch wget diffutils java
 
-git clone -b packerHCL https://github.com/DinoBektesevic/autobuilder.git
+git clone -b packer https://github.com/DinoBektesevic/autobuilder.git
 
 
 ####
@@ -63,8 +63,7 @@ sudo yum localinstall -y pegasus-5.0.0-1.el8.x86_64.rpm
 mkdir -p lsst_stack
 cd lsst_stack
 
-#   5.1) TODO: Update link to use master once the problem with env0.2.1 goes away
-curl -OL https://raw.githubusercontent.com/lsst/lsst/w.2021.04/scripts/newinstall.sh
+curl -OL https://raw.githubusercontent.com/lsst/lsst/master/scripts/newinstall.sh
 bash ~/lsst_stack/newinstall.sh -bct
 
 source ~/lsst_stack/loadLSST.bash
