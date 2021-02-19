@@ -1,4 +1,7 @@
-#make this a worker node
+# This configuration file is a part of the HTCondor instalaltion.
+#
+# This configuration file configures an HTCondor Worker node.
+
 DAEMON_LIST = MASTER STARTD
   
 # Taken from the manual's instructions on installing a minicondor.

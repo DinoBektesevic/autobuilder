@@ -1,3 +1,16 @@
+"""This file is a part of autobuilder Packer build scripts.
+
+This script is copied to the node during build process and is invoked on login.
+
+The script:
+    *) checks whether credentials exist on the instance and if not asks for
+       that they be provided
+    *) performs a sanity check by veryfing the most basic subset of required
+       functionality is authorized for the given credentials
+    *) if they are, places credentials in their all of the required locations
+       so that HTCondor and Pegasus can find them. 
+"""
+
 #!/usr/bin/env python3
 import os
 import pipes
