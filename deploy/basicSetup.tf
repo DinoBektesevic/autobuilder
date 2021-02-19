@@ -1,7 +1,7 @@
 # This HCL Terraform configuration is a part of Rubin AWS autobuilder.
 #
-# The configuration script launches the basic infrastucture required
-# to run Rubin processing on AWS. On first use Terraform must be initialized 
+# The configuration script launches the basic infrastructure required
+# to run Rubin processing on AWS. On first use Terraform must be initialized
 #
 #     terraform init
 #
@@ -30,7 +30,7 @@
 #
 #     * a RubinAWS RDS Parameters Group
 #
-#       note: innapropriate max locks, connections and buffer size values
+#       note: inappropriate max locks, connections and buffer size values
 #       will have a significant negative impact on workflow execution.       
 #
 #     * a RubinAWS DB subnet group association
@@ -42,7 +42,7 @@
 #     * launch an RubinAWS RDS PostgreSQL instance
 #
 #       note: RDS instance identifier must be unique across all DB
-#       instances owned by your account in the set region. 
+#       instances owned by your account in the set region.
 #
 #     * launch an HTCondor Head node
 #
@@ -230,5 +230,7 @@ resource "aws_instance" "headNode" {
       aws_security_group.RubinAWS.id
   ]
 }
+
+
 
 
